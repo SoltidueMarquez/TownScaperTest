@@ -30,6 +30,15 @@ namespace Grid_Generator
                 Gizmos.DrawLine(triangle.b.coord.worldPosition, triangle.c.coord.worldPosition);
                 Gizmos.DrawSphere((triangle.a.coord.worldPosition + triangle.b.coord.worldPosition + triangle.c.coord.worldPosition) / 3, 0.05f);
             }
+            
+            Gizmos.color = Color.green;
+            foreach (var quad in grid.quads)
+            {
+                Gizmos.DrawLine(quad.a.coord.worldPosition, quad.b.coord.worldPosition);
+                Gizmos.DrawLine(quad.b.coord.worldPosition, quad.c.coord.worldPosition);
+                Gizmos.DrawLine(quad.c.coord.worldPosition, quad.d.coord.worldPosition);
+                Gizmos.DrawLine(quad.a.coord.worldPosition, quad.d.coord.worldPosition);
+            }
         }
     }
 }
