@@ -121,7 +121,7 @@ namespace Grid_Generator
         public static List<Coord> CreateHex()
         {
             var res = new List<Coord>();
-            for (var i = 0; i < Grid.radius; i++)
+            for (var i = 0; i <= Grid.radius; i++)
             {
                 res.AddRange(CoordRing(i));
             }
@@ -157,6 +157,19 @@ namespace Grid_Generator
             {
                 vertices.Add(new VertexHex(coord));
             }
+        }
+
+        /// <summary>
+        /// 或许对应半径的环上的坐标点
+        /// </summary>
+        /// <param name="radius"></param>
+        /// <param name="vertices"></param>
+        /// <returns></returns>
+        public static List<VertexHex> GrabRing(int radius, List<VertexHex> vertices)
+        {
+            return radius == 0 ? 
+                vertices.GetRange(0, 1) : 
+                vertices.GetRange(radius * (radius - 1) * 3 + 1, radius * 6);
         }
     }
 }

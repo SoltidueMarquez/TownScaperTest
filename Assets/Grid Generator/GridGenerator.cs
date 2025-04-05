@@ -20,7 +20,15 @@ namespace Grid_Generator
             if (grid == null) return;
             foreach (var vertex in grid.hexes)
             {
-                Gizmos.DrawSphere(vertex.coord.worldPosition, 0.3f);
+                Gizmos.DrawSphere(vertex.coord.worldPosition, 0.1f);
+            }
+            Gizmos.color = Color.yellow;
+            foreach (var triangle in grid.triangles)
+            {
+                Gizmos.DrawLine(triangle.a.coord.worldPosition, triangle.b.coord.worldPosition);
+                Gizmos.DrawLine(triangle.a.coord.worldPosition, triangle.c.coord.worldPosition);
+                Gizmos.DrawLine(triangle.b.coord.worldPosition, triangle.c.coord.worldPosition);
+                Gizmos.DrawSphere((triangle.a.coord.worldPosition + triangle.b.coord.worldPosition + triangle.c.coord.worldPosition) / 3, 0.05f);
             }
         }
     }
