@@ -17,6 +17,8 @@ namespace Grid_Generator
         public readonly Edge cd;
         public readonly Edge ad;
 
+        public readonly VertexQuadCenter center;
+
         /// <summary>
         /// 构造函数
         /// 这边的四边形所有的边有来源于三角形
@@ -27,7 +29,8 @@ namespace Grid_Generator
         /// <param name="d"></param>
         /// <param name="edges"></param>
         /// <param name="quads"></param>
-        public Quad(VertexHex a, VertexHex b, VertexHex c, VertexHex d, List<Edge> edges, List<Quad> quads)
+        public Quad(VertexHex a, VertexHex b, VertexHex c, VertexHex d, ICollection<VertexCenter> centers,
+            IReadOnlyCollection<Edge> edges, ICollection<Quad> quads)
         {
             this.a = a;
             this.b = b;
@@ -39,7 +42,25 @@ namespace Grid_Generator
             cd = Edge.FindEdge(c, d, edges);
             ad = Edge.FindEdge(a, d, edges);
 
+            center = new VertexQuadCenter(this);
+            centers.Add(center);
+
             quads.Add(this);
+        }
+        
+        /// <summary>
+        /// 网格细分
+        /// </summary>
+        public void Subdivide(List<SubQuad> subQuads)
+        {
+            var quadA = new SubQuad(a, ab.mid, center, ad.mid);
+            var quadB = new SubQuad(b, bc.mid, center, ab.mid);
+            var quadC = new SubQuad(c, cd.mid, center, bc.mid);
+            var quadD = new SubQuad(d, ad.mid, center, cd.mid);
+            subQuads.Add(quadA);
+            subQuads.Add(quadB);
+            subQuads.Add(quadC);
+            subQuads.Add(quadD);
         }
     }
 }

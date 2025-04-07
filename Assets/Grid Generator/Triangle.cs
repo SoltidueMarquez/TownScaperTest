@@ -10,32 +10,41 @@ namespace Grid_Generator
         public readonly VertexHex a;
         public readonly VertexHex b;
         public readonly VertexHex c;
-        public readonly VertexHex[] vertices;
-        // 三条边
-        public readonly Edge ab;
-        public readonly Edge bc;
-        public readonly Edge ac;
 
-        public readonly Edge[] edges;
+        private readonly VertexHex[] vertices;
 
-        public Triangle(VertexHex a, VertexHex b, VertexHex c, List<Edge> edges, List<Triangle> triangles)
+        // 三条边(其实可以去掉)
+        private readonly Edge ab;
+        private readonly Edge bc;
+        private readonly Edge ac;
+        private readonly Edge[] edges;
+
+        public readonly VertexTriangleCenter center;
+
+        public Triangle(VertexHex a, VertexHex b, VertexHex c, ICollection<VertexMid> mids,
+            ICollection<VertexCenter> centers, ICollection<Edge> edges,
+            ICollection<Triangle> triangles
+        )
         {
             this.a = a;
             this.b = b;
             this.c = c;
             vertices = new VertexHex[] { a, b, c };
-            
+
             // 查找三条边是否存在
             ab = Edge.FindEdge(a, b, edges);
             bc = Edge.FindEdge(c, b, edges);
             ac = Edge.FindEdge(a, c, edges);
             // 如果不存在这条边就先创建出来
-            ab ??= new Edge(a, b, edges);
-            bc ??= new Edge(c, b, edges);
-            ac ??= new Edge(a, c, edges);
+            ab ??= new Edge(a, b, edges, mids);
+            bc ??= new Edge(c, b, edges, mids);
+            ac ??= new Edge(a, c, edges, mids);
             // 将边放入数组
             this.edges = new Edge[] { ab, bc, ac };
-            
+            // 计算中心点
+            center = new VertexTriangleCenter(this);
+            centers.Add(center);
+
             triangles.Add(this);
         }
 
@@ -45,7 +54,10 @@ namespace Grid_Generator
         /// <param name="radius"></param>
         /// <param name="vertices"></param>
         /// <param name="triangles"></param>
-        private static void TrianglesRing(int radius, List<VertexHex> vertices, List<Edge> edges, List<Triangle> triangles)
+        private static void TrianglesRing(int radius, List<VertexHex> vertices, ICollection<VertexMid> mids,
+            ICollection<VertexCenter> centers,
+            ICollection<Edge> edges,
+            ICollection<Triangle> triangles)
         {
             // 首先获取对应的内圈外圈点
             var inner = VertexHex.GrabRing(radius - 1, vertices);
@@ -58,12 +70,12 @@ namespace Grid_Generator
                     var a = outer[i * radius + j];
                     var b = outer[(i * radius + j + 1) % outer.Count]; // 转一圈之后需要回到最初的点所以要取余
                     var c = inner[(i * (radius - 1) + j) % inner.Count];
-                    new Triangle(a, b, c, edges, triangles);
+                    new Triangle(a, b, c, mids, centers, edges, triangles);
                     // 创建一个外圈顶点加两个内圈顶点组成的三角形（蓝色三角形）
                     if (j > 0) // 蓝色三角形第一圈是没有的
                     {
                         var d = inner[i * (radius - 1) + j - 1];
-                        new Triangle(a, c, d, edges, triangles);
+                        new Triangle(a, c, d, mids, centers, edges, triangles);
                     }
                 }
             }
@@ -74,14 +86,16 @@ namespace Grid_Generator
         /// </summary>
         /// <param name="vertices"></param>
         /// <param name="triangles"></param>
-        public static void TriangleHex(List<VertexHex> vertices, List<Edge> edges, List<Triangle> triangles)
+        public static void TriangleHex(List<VertexHex> vertices, ICollection<VertexMid> mids,
+            ICollection<VertexCenter> centers, List<Edge> edges,
+            List<Triangle> triangles)
         {
             for (int i = 1; i <= Grid.radius; i++)
             {
-                TrianglesRing(i, vertices, edges, triangles);
+                TrianglesRing(i, vertices, mids, centers, edges, triangles);
             }
         }
-        
+
         /// <summary>
         /// 判断两个三角形是否相邻
         /// 将三角形的edges转化为哈希集合与边表求交集
@@ -116,7 +130,7 @@ namespace Grid_Generator
             intersection.IntersectWith(neighbor.edges);
             return intersection.Single();
         }
-        
+
         /// <summary>
         /// 找自身三角形中和相邻三角形不共有的顶点
         /// </summary>
@@ -128,7 +142,7 @@ namespace Grid_Generator
             exception.ExceptWith(NeighborEdge(neighbor).hexes);
             return exception.Single();
         }
-        
+
         /// <summary>
         /// 找邻居三角形中和相邻三角形不共有的顶点
         /// </summary>
@@ -148,16 +162,24 @@ namespace Grid_Generator
         /// <param name="edges"></param>
         /// <param name="triangles"></param>
         /// <param name="quads"></param>
-        public void MergeNeighborTriangles(Triangle neighbor, List<Edge> edges, List<Triangle> triangles, List<Quad> quads)
+        public void MergeNeighborTriangles(Triangle neighbor, List<VertexMid> mids, ICollection<VertexCenter> centers,
+            List<Edge> edges,
+            List<Triangle> triangles, List<Quad> quads)
         {
             // 点的顺序为顺时针
             var a = IsolatedVertexSelf(neighbor);
             var b = vertices[(Array.IndexOf(vertices, a) + 1) % 3];
             var c = IsolatedVertexNeighbor(neighbor);
             var d = neighbor.vertices[(Array.IndexOf(neighbor.vertices, c) + 1) % 3];
-            var quad = new Quad(a, b, c, d, edges, quads);
-            // 将重合边与两个三角形去掉
-            edges.Remove(NeighborEdge(neighbor));
+            var quad = new Quad(a, b, c, d, centers, edges, quads);
+            // 将重合边与它的中点去掉
+            var edge = NeighborEdge(neighbor);
+            edges.Remove(edge);
+            mids.Remove(edge.mid);
+            // 移除两个合并三角形的中心点
+            centers.Remove(this.center);
+            centers.Remove(neighbor.center);
+            // 去掉两个三角形
             triangles.Remove(this);
             triangles.Remove(neighbor);
         }
@@ -168,34 +190,41 @@ namespace Grid_Generator
         /// <returns></returns>
         public static bool HasNeighborTriangles(List<Triangle> triangles)
         {
-            foreach (var a in triangles)
-            {
-                foreach (var b in triangles)
-                {
-                    if (a.IsNeighbor(b))
-                        return true;
-                }
-            }
-
-            return false;
+            return triangles.Any(a => triangles.Any(a.IsNeighbor));
         }
-        
+
         /// <summary>
         /// 随即抓取相邻三角形合并
         /// </summary>
         /// <param name="edges"></param>
         /// <param name="triangles"></param>
         /// <param name="quads"></param>
-        public static void RandomlyMergeTriangles(List<Edge> edges, List<Triangle> triangles, List<Quad> quads)
+        public static void RandomlyMergeTriangles(List<VertexMid> mids, ICollection<VertexCenter> centers,
+            List<Edge> edges, List<Triangle> triangles,
+            List<Quad> quads)
         {
-            // 随即抓取一个三角形查看是否有相邻三角形
+            // 随机抓取一个三角形查看是否有相邻三角形
             var randomIndex = UnityEngine.Random.Range(0, triangles.Count);
             var neighbors = triangles[randomIndex].FindAllNeighborTriangles(triangles);
             if (neighbors.Count != 0)
             {
                 var randomNeighborIndex = UnityEngine.Random.Range(0, neighbors.Count);
-                triangles[randomIndex].MergeNeighborTriangles(neighbors[randomNeighborIndex], edges, triangles, quads);
+                triangles[randomIndex]
+                    .MergeNeighborTriangles(neighbors[randomNeighborIndex], mids, centers, edges, triangles, quads);
             }
+        }
+
+        /// <summary>
+        /// 网格细分
+        /// </summary>
+        public void Subdivide(List<SubQuad> subQuads)
+        {
+            var quadA = new SubQuad(a, ab.mid, center, ac.mid);
+            var quadB = new SubQuad(b, bc.mid, center, ab.mid);
+            var quadC = new SubQuad(c, ac.mid, center, bc.mid);
+            subQuads.Add(quadA);
+            subQuads.Add(quadB);
+            subQuads.Add(quadC);
         }
     }
 }

@@ -1,10 +1,15 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Grid_Generator
 {
     public class Vertex
     {
+        /// <summary>
+        /// 每个点在世界中的实际初始位置，为后续网格平滑做准备
+        /// </summary>
+        public Vector3 InitialPosition;
     }
 
     /// <summary>
@@ -144,19 +149,16 @@ namespace Grid_Generator
         public VertexHex(Coord coord)
         {
             this.coord = coord;
+            InitialPosition = coord.worldPosition;
         }
 
         /// <summary>
         /// 根据六边形点阵坐标创建六边形点阵
         /// </summary>
         /// <param name="vertices"></param>
-        /// <param name="radius"></param>
         public static void Hex(List<VertexHex> vertices)
         {
-            foreach (var coord in Coord.CreateHex())
-            {
-                vertices.Add(new VertexHex(coord));
-            }
+            vertices.AddRange(Coord.CreateHex().Select(coord => new VertexHex(coord)));
         }
 
         /// <summary>
@@ -167,9 +169,52 @@ namespace Grid_Generator
         /// <returns></returns>
         public static List<VertexHex> GrabRing(int radius, List<VertexHex> vertices)
         {
-            return radius == 0 ? 
-                vertices.GetRange(0, 1) : 
-                vertices.GetRange(radius * (radius - 1) * 3 + 1, radius * 6);
+            return radius == 0 ? vertices.GetRange(0, 1) : vertices.GetRange(radius * (radius - 1) * 3 + 1, radius * 6);
+        }
+    }
+
+    /// <summary>
+    /// Edge类的中点
+    /// </summary>
+    public class VertexMid : Vertex
+    {
+        public VertexMid(Edge edge, ICollection<VertexMid> middles)
+        {
+            var a = edge.hexes.ToArray()[0];
+            var b = edge.hexes.ToArray()[1];
+            middles.Add(this);
+            InitialPosition = (a.InitialPosition + b.InitialPosition) / 2;
+        }
+    }
+
+    /// <summary>
+    /// 多边形的中心点基类
+    /// </summary>
+    public class VertexCenter : Vertex
+    {
+    }
+
+    /// <summary>
+    /// 三角形中心点
+    /// </summary>
+    public class VertexTriangleCenter : VertexCenter
+    {
+        public VertexTriangleCenter(Triangle triangle)
+        {
+            InitialPosition = (triangle.a.InitialPosition + triangle.b.InitialPosition + triangle.c.InitialPosition) /
+                              3;
+        }
+    }
+
+    /// <summary>
+    /// 四边形中心点
+    /// </summary>
+    public class VertexQuadCenter : VertexCenter
+    {
+        public VertexQuadCenter(Quad quad)
+        {
+            InitialPosition = (quad.a.InitialPosition + quad.b.InitialPosition + quad.c.InitialPosition +
+                               quad.d.InitialPosition) / 4;
         }
     }
 }
