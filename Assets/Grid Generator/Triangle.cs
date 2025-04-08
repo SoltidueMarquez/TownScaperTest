@@ -219,12 +219,9 @@ namespace Grid_Generator
         /// </summary>
         public void Subdivide(List<SubQuad> subQuads)
         {
-            var quadA = new SubQuad(a, ab.mid, center, ac.mid);
-            var quadB = new SubQuad(b, bc.mid, center, ab.mid);
-            var quadC = new SubQuad(c, ac.mid, center, bc.mid);
-            subQuads.Add(quadA);
-            subQuads.Add(quadB);
-            subQuads.Add(quadC);
+            var quadA = new SubQuad(a, ab.mid, center, ac.mid, subQuads);
+            var quadB = new SubQuad(b, bc.mid, center, ab.mid, subQuads);
+            var quadC = new SubQuad(c, ac.mid, center, bc.mid, subQuads);
         }
     }
 }

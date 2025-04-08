@@ -47,20 +47,16 @@ namespace Grid_Generator
 
             quads.Add(this);
         }
-        
+
         /// <summary>
         /// 网格细分
         /// </summary>
         public void Subdivide(List<SubQuad> subQuads)
         {
-            var quadA = new SubQuad(a, ab.mid, center, ad.mid);
-            var quadB = new SubQuad(b, bc.mid, center, ab.mid);
-            var quadC = new SubQuad(c, cd.mid, center, bc.mid);
-            var quadD = new SubQuad(d, ad.mid, center, cd.mid);
-            subQuads.Add(quadA);
-            subQuads.Add(quadB);
-            subQuads.Add(quadC);
-            subQuads.Add(quadD);
+            var quadA = new SubQuad(a, ab.mid, center, ad.mid, subQuads);
+            var quadB = new SubQuad(b, bc.mid, center, ab.mid, subQuads);
+            var quadC = new SubQuad(c, cd.mid, center, bc.mid, subQuads);
+            var quadD = new SubQuad(d, ad.mid, center, cd.mid, subQuads);
         }
     }
 }

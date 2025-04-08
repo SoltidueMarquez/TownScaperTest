@@ -10,6 +10,19 @@ namespace Grid_Generator
         /// 每个点在世界中的实际初始位置，为后续网格平滑做准备
         /// </summary>
         public Vector3 InitialPosition;
+        /// <summary>
+        /// 当前坐标
+        /// </summary>
+        public Vector3 currentPosition;
+        /// <summary>
+        /// 网格平滑偏移值
+        /// </summary>
+        public Vector3 offset = Vector3.zero;
+        
+        /// <summary>
+        /// 松弛函数，根据偏移值与初始坐标计算当前坐标
+        /// </summary>
+        public void Relax() { currentPosition = InitialPosition + offset; }
     }
 
     /// <summary>
@@ -150,6 +163,7 @@ namespace Grid_Generator
         {
             this.coord = coord;
             InitialPosition = coord.worldPosition;
+            currentPosition = InitialPosition;
         }
 
         /// <summary>
@@ -184,6 +198,7 @@ namespace Grid_Generator
             var b = edge.hexes.ToArray()[1];
             middles.Add(this);
             InitialPosition = (a.InitialPosition + b.InitialPosition) / 2;
+            currentPosition = InitialPosition;
         }
     }
 
@@ -201,8 +216,8 @@ namespace Grid_Generator
     {
         public VertexTriangleCenter(Triangle triangle)
         {
-            InitialPosition = (triangle.a.InitialPosition + triangle.b.InitialPosition + triangle.c.InitialPosition) /
-                              3;
+            InitialPosition = (triangle.a.InitialPosition + triangle.b.InitialPosition + triangle.c.InitialPosition) / 3;
+            currentPosition = InitialPosition;
         }
     }
 
@@ -215,6 +230,7 @@ namespace Grid_Generator
         {
             InitialPosition = (quad.a.InitialPosition + quad.b.InitialPosition + quad.c.InitialPosition +
                                quad.d.InitialPosition) / 4;
+            currentPosition = InitialPosition;
         }
     }
 }

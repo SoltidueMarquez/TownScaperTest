@@ -14,6 +14,8 @@ namespace Grid_Generator
         public readonly List<VertexMid> mids = new List<VertexMid>(); // 边的中点
 
         public readonly List<VertexCenter> centers = new List<VertexCenter>(); // 三角形和四边形的中心点
+        
+        public readonly List<Vertex> vertices = new List<Vertex>();// 所有点的集合
 
         public readonly List<Edge> edges = new List<Edge>(); // 边
 
@@ -23,23 +25,50 @@ namespace Grid_Generator
 
         public readonly List<SubQuad> subQuads = new List<SubQuad>();// 细分四边形列表
 
-        public Grid(int radius, float cellSize)
+        public Grid(int radius, float cellSize, int relaxTimes)
         {
             Grid.radius = radius;
             Grid.cellSize = cellSize;
             VertexHex.Hex(hexes); // 创建六边形点阵
             Triangle.TriangleHex(hexes, mids, centers, edges, triangles); // 创建三角形
 
-            var cnt = 1000;// 最大迭代次数防止死循环
-            while (Triangle.HasNeighborTriangles(triangles) && cnt > 0)// 合并三角形
+            var cnt = 1000; // 最大迭代次数防止死循环
+            while (Triangle.HasNeighborTriangles(triangles) && cnt > 0) // 合并三角形
             {
                 Triangle.RandomlyMergeTriangles(mids, centers, edges, triangles, quads);
                 cnt--;
             }
-            
+
+            // 获取所有点的列表
+            vertices.AddRange(hexes);
+            vertices.AddRange(mids);
+            vertices.AddRange(centers);
+
             // 细分三角形和四边形
-            foreach (var triangle in triangles) { triangle.Subdivide(subQuads); }
-            foreach (var quad in quads) { quad.Subdivide(subQuads); }
+            foreach (var triangle in triangles)
+            {
+                triangle.Subdivide(subQuads);
+            }
+
+            foreach (var quad in quads)
+            {
+                quad.Subdivide(subQuads);
+            }
+
+            for (var i = 0; i < relaxTimes; i++)
+            {
+                // 网格平滑
+                foreach (var subQuad in subQuads)
+                {
+                    subQuad.CalculateRelaxOffset();
+                }
+
+                // 遍历每个点计算当前坐标
+                foreach (var vertex in vertices)
+                {
+                    vertex.Relax();
+                }
+            }
         }
     }
 }

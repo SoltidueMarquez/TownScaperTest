@@ -168,6 +168,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   radius: 5
   cellSize: 1
+  relaxTimes: 120
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
