@@ -7,15 +7,19 @@ namespace Grid_Generator
     {
         public static int radius;
 
+        public static float height;// 总高度
+
         public static float cellSize; // 相邻点之间的距离值
+
+        public static float cellHeight;
 
         public readonly List<VertexHex> hexes = new List<VertexHex>(); // 六边形点阵
 
         public readonly List<VertexMid> mids = new List<VertexMid>(); // 边的中点
 
         public readonly List<VertexCenter> centers = new List<VertexCenter>(); // 三角形和四边形的中心点
-        
-        public readonly List<Vertex> vertices = new List<Vertex>();// 所有点的集合
+
+        public readonly List<Vertex> vertices = new List<Vertex>(); // 所有点的集合
 
         public readonly List<Edge> edges = new List<Edge>(); // 边
 
@@ -23,12 +27,15 @@ namespace Grid_Generator
 
         public readonly List<Quad> quads = new List<Quad>(); // 四边形列表
 
-        public readonly List<SubQuad> subQuads = new List<SubQuad>();// 细分四边形列表
+        public readonly List<SubQuad> subQuads = new List<SubQuad>(); // 细分四边形列表
 
-        public Grid(int radius, float cellSize, int relaxTimes)
+        public Grid(int radius, int height, float cellSize, float cellHeight, int relaxTimes)
         {
             Grid.radius = radius;
+            Grid.height = height;
             Grid.cellSize = cellSize;
+            Grid.cellHeight = cellHeight;
+            
             VertexHex.Hex(hexes); // 创建六边形点阵
             Triangle.TriangleHex(hexes, mids, centers, edges, triangles); // 创建三角形
 
@@ -58,15 +65,17 @@ namespace Grid_Generator
             for (var i = 0; i < relaxTimes; i++)
             {
                 // 网格平滑
-                foreach (var subQuad in subQuads)
-                {
-                    subQuad.CalculateRelaxOffset();
-                }
-
+                foreach (var subQuad in subQuads) { subQuad.CalculateRelaxOffset(); }
                 // 遍历每个点计算当前坐标
-                foreach (var vertex in vertices)
+                foreach (var vertex in vertices) { vertex.Relax(); }
+            }
+
+
+            foreach (var vertex in vertices)
+            {
+                for (float i = 0; i < (float)Grid.height; i+=Grid.cellHeight)
                 {
-                    vertex.Relax();
+                    vertex.VertexYs.Add(new VertexY(vertex, (int)i));
                 }
             }
         }

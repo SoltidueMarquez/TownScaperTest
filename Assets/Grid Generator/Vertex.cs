@@ -18,7 +18,11 @@ namespace Grid_Generator
         /// 网格平滑偏移值
         /// </summary>
         public Vector3 offset = Vector3.zero;
-        
+        /// <summary>
+        /// y坐标列表
+        /// </summary>
+        public List<VertexY> VertexYs = new List<VertexY>();
+
         /// <summary>
         /// 松弛函数，根据偏移值与初始坐标计算当前坐标
         /// </summary>
@@ -231,6 +235,24 @@ namespace Grid_Generator
             InitialPosition = (quad.a.InitialPosition + quad.b.InitialPosition + quad.c.InitialPosition +
                                quad.d.InitialPosition) / 4;
             currentPosition = InitialPosition;
+        }
+    }
+
+    /// <summary>
+    /// 带有纵坐标的顶点
+    /// </summary>
+    public class VertexY
+    {
+        public readonly Vertex vertex;
+        public readonly int y;
+        public readonly Vector3 worldPosition;
+        public bool isActive;
+
+        public VertexY(Vertex vertex, int y)
+        {
+            this.vertex = vertex;
+            this.y = y;
+            worldPosition = vertex.currentPosition + Vector3.up * (y * Grid.cellHeight);
         }
     }
 }
