@@ -21,7 +21,7 @@ namespace Grid_Generator
         /// <summary>
         /// y坐标列表
         /// </summary>
-        public List<VertexY> VertexYs = new List<VertexY>();
+        public List<VertexY> vertexYs = new List<VertexY>();
 
         /// <summary>
         /// 松弛函数，根据偏移值与初始坐标计算当前坐标

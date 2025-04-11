@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 namespace Grid_Generator
@@ -24,7 +25,7 @@ namespace Grid_Generator
         private void Update()
         {
             // 测试用，性能消耗很恐怖
-            foreach (var vertexY in grid.vertices.SelectMany(vertex => vertex.VertexYs))
+            foreach (var vertexY in grid.vertices.SelectMany(vertex => vertex.vertexYs))
             {
                 vertexY.isActive = vertexY.isActive switch
                 {
@@ -33,18 +34,45 @@ namespace Grid_Generator
                     _ => vertexY.isActive
                 };
             }
+
+            foreach (var subQuadCube in grid.subQuads.SelectMany(subQuad => subQuad.subQuadCubes))
+            {
+                subQuadCube.UpdateBit();
+            }
         }
 
         // 调试测试
         private void OnDrawGizmos()
         {
             if (grid == null) return;
-            foreach (var vertex in grid.vertices)
+            foreach (var vertexY in grid.vertices.SelectMany(vertex => vertex.vertexYs))
             {
-                foreach (var vertexY in vertex.VertexYs)
+                Gizmos.color = (vertexY.isActive) ? Color.red : Color.gray;
+                Gizmos.DrawSphere(vertexY.worldPosition, (vertexY.isActive) ? 0.3f : 0.1f);
+            }
+
+            foreach (var subQuad in grid.subQuads)
+            {
+                foreach (var subQuadCube in subQuad.subQuadCubes)
                 {
-                    Gizmos.color = (vertexY.isActive) ? Color.red : Color.gray;
-                    Gizmos.DrawSphere(vertexY.worldPosition, (vertexY.isActive) ? 0.3f : 0.1f);
+                    Gizmos.color = Color.gray;
+                    Gizmos.DrawLine(subQuadCube.vertexYs[0].worldPosition, subQuadCube.vertexYs[1].worldPosition);
+                    Gizmos.DrawLine(subQuadCube.vertexYs[1].worldPosition, subQuadCube.vertexYs[2].worldPosition);
+                    Gizmos.DrawLine(subQuadCube.vertexYs[2].worldPosition, subQuadCube.vertexYs[3].worldPosition);
+                    Gizmos.DrawLine(subQuadCube.vertexYs[3].worldPosition, subQuadCube.vertexYs[0].worldPosition);
+                    
+                    Gizmos.DrawLine(subQuadCube.vertexYs[4].worldPosition, subQuadCube.vertexYs[5].worldPosition);
+                    Gizmos.DrawLine(subQuadCube.vertexYs[5].worldPosition, subQuadCube.vertexYs[6].worldPosition);
+                    Gizmos.DrawLine(subQuadCube.vertexYs[6].worldPosition, subQuadCube.vertexYs[7].worldPosition);
+                    Gizmos.DrawLine(subQuadCube.vertexYs[7].worldPosition, subQuadCube.vertexYs[4].worldPosition);
+                    
+                    Gizmos.DrawLine(subQuadCube.vertexYs[0].worldPosition, subQuadCube.vertexYs[4].worldPosition);
+                    Gizmos.DrawLine(subQuadCube.vertexYs[1].worldPosition, subQuadCube.vertexYs[5].worldPosition);
+                    Gizmos.DrawLine(subQuadCube.vertexYs[2].worldPosition, subQuadCube.vertexYs[6].worldPosition);
+                    Gizmos.DrawLine(subQuadCube.vertexYs[3].worldPosition, subQuadCube.vertexYs[7].worldPosition);
+                    
+                    GUI.color = Color.blue;
+                    Handles.Label(subQuadCube.centerPosition, subQuadCube.bit);
                 }
             }
         }

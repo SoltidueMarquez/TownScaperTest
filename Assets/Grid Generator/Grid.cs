@@ -56,12 +56,11 @@ namespace Grid_Generator
             {
                 triangle.Subdivide(subQuads);
             }
-
             foreach (var quad in quads)
             {
                 quad.Subdivide(subQuads);
             }
-
+            
             for (var i = 0; i < relaxTimes; i++)
             {
                 // 网格平滑
@@ -70,14 +69,23 @@ namespace Grid_Generator
                 foreach (var vertex in vertices) { vertex.Relax(); }
             }
 
-
+            // 创建三维网格
             foreach (var vertex in vertices)
             {
-                for (float i = 0; i < (float)Grid.height; i+=Grid.cellHeight)
+                for (var i = 0; i < Grid.height + 1; i++)
                 {
-                    vertex.VertexYs.Add(new VertexY(vertex, (int)i));
+                    vertex.vertexYs.Add(new VertexY(vertex, i));
                 }
             }
+            foreach (var subQuad in subQuads)// 注意这里subQuad_cube的纵向个数要比vertex_Y少一个
+            {
+                for (var i = 0; i < Grid.height; i++)
+                {
+                    subQuad.subQuadCubes.Add(new SubQuadCube(subQuad, i));
+                }
+            }
+            
+            
         }
     }
 }

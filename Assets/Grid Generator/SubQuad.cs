@@ -13,6 +13,8 @@ namespace Grid_Generator
         public readonly VertexCenter c;
         public readonly VertexMid d;
 
+        public List<SubQuadCube> subQuadCubes = new List<SubQuadCube>();// 在此细分四边形平面基础上的三维四边形方块列表
+
         public SubQuad(VertexHex a, VertexMid b, VertexCenter c, VertexMid d, List<SubQuad> subQuads)
         {
             this.a = a;
@@ -46,6 +48,59 @@ namespace Grid_Generator
             b.offset += (vectorB - b.currentPosition) * 0.1f;
             c.offset += (vectorC - c.currentPosition) * 0.1f;
             d.offset += (vectorD - d.currentPosition) * 0.1f;
+        }
+        
+        /// <summary>
+        /// 计算中心点
+        /// </summary>
+        /// <returns></returns>
+        public Vector3 GetCenterPosition()
+        {
+            return (a.currentPosition + b.currentPosition + c.currentPosition + d.currentPosition) / 4;
+        }
+    }
+
+    public class SubQuadCube
+    {
+        public readonly SubQuad subQuad;
+        public readonly int y;
+        public readonly Vector3 centerPosition;
+        /// <summary>
+        /// 网格的八个顶点
+        /// </summary>
+        public readonly VertexY[] vertexYs = new VertexY[8];
+        /// <summary>
+        /// bit值
+        /// </summary>
+        public string bit = "00000000";
+        public SubQuadCube(SubQuad subQuad, int y)
+        {
+            this.subQuad = subQuad;
+            this.y = y;
+            centerPosition = this.subQuad.GetCenterPosition() + Vector3.up * Grid.cellHeight * (y + 0.5f);
+            
+            // 上层顶点
+            vertexYs[0] = subQuad.a.vertexYs[y + 1];
+            vertexYs[1] = subQuad.b.vertexYs[y + 1];
+            vertexYs[2] = subQuad.c.vertexYs[y + 1];
+            vertexYs[3] = subQuad.d.vertexYs[y + 1];
+            // 下层顶点
+            vertexYs[4] = subQuad.a.vertexYs[y];
+            vertexYs[5] = subQuad.b.vertexYs[y];
+            vertexYs[6] = subQuad.c.vertexYs[y];
+            vertexYs[7] = subQuad.d.vertexYs[y];
+        }
+        
+        /// <summary>
+        /// 根据顶点激活状态计算bit的值
+        /// </summary>
+        public void UpdateBit()
+        {
+            bit = string.Empty;
+            for (var i = 0; i < 8; i++)
+            {
+                bit += (vertexYs[i].isActive) ? "1" : "0";
+            }
         }
     }
 }
