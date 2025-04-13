@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 using UnityEngine;
 
 namespace Grid_Generator.Modules
 {
     [CreateAssetMenu(menuName = "ScriptableObject/ModuleLibrary")]
-    public class ModuleLibrary : ScriptableObject
+    public class ModuleLibrary : SerializedScriptableObject
     {
         [SerializeField, Tooltip("导入的模型")] private GameObject importedModules;
 
         // 波函数坍缩需要List<Module>
-        private Dictionary<string, List<Module>> moduleLibrary = new Dictionary<string, List<Module>>();
-
-        // private void Awake()
-        // {
-        //     ImportModule();
-        // }
-
+        [OdinSerialize] public Dictionary<string, List<Module>> moduleLibrary = new Dictionary<string, List<Module>>();
+        
+        [Button]
         public void ImportModule()
         {
             for (var i = 1; i < 256; i++) // 初始化字典，将十进制转化为二进制作为key存入

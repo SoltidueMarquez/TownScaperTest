@@ -1,7 +1,9 @@
+using System;
 using UnityEngine;
 
 namespace Grid_Generator.Modules
 {
+    [Serializable]
     public class Module
     {
         [Tooltip("名称")] public string moduleName;
