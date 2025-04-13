@@ -20,6 +20,8 @@ namespace Grid_Generator.Modules
 
         public void ImportModule()
         {
+            moduleLibrary.Clear();
+            
             for (var i = 1; i < 256; i++) // 初始化字典，将十进制转化为二进制作为key存入
             {
                 moduleLibrary.Add(Convert.ToString(i, 2).PadLeft(8, '0'), new List<Module>());
@@ -57,6 +59,8 @@ namespace Grid_Generator.Modules
                     }
                 }
             }
+
+            Debug.Log("导入完成");
         }
 
         /// <summary>
