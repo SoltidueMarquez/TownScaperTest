@@ -73,6 +73,10 @@ namespace Grid_Generator
         /// bit值
         /// </summary>
         public string bit = "00000000";
+        /// <summary>
+        /// 上一次状态的bit值
+        /// </summary>
+        public string preBit = "00000000";
         public SubQuadCube(SubQuad subQuad, int y)
         {
             this.subQuad = subQuad;
@@ -96,6 +100,7 @@ namespace Grid_Generator
         /// </summary>
         public void UpdateBit()
         {
+            preBit = bit;
             bit = string.Empty;
             for (var i = 0; i < 8; i++)
             {

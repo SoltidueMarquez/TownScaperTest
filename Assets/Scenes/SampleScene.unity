@@ -168,11 +168,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af3106c4d0924a38b87d1c7189cb741c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  radius: 5
-  height: 5
+  radius: 2
+  height: 6
   cellSize: 1
   cellHeight: 1
   relaxTimes: 120
+  moduleLibrary: {fileID: 11400000, guid: e70cbb24b9ead2b40b14f2ed5fed6e21, type: 2}
+  moduleMaterial: {fileID: 2100000, guid: 6936f5502618b7847b501b77a679a300, type: 2}
   addSphere: {fileID: 2015544173}
   deleteSphere: {fileID: 1116911467}
 --- !u!1 &963194225
@@ -295,9 +297,9 @@ Transform:
   m_GameObject: {fileID: 1116911466}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -6.57}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0, y: -2.56, z: -6.57}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 269154827}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -400,9 +402,9 @@ Transform:
   m_GameObject: {fileID: 2015544172}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0, y: -2.56, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 269154827}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

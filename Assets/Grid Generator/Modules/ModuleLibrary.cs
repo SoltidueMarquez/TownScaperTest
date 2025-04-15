@@ -13,10 +13,10 @@ namespace Grid_Generator.Modules
         // 波函数坍缩需要List<Module>
         private Dictionary<string, List<Module>> moduleLibrary = new Dictionary<string, List<Module>>();
 
-        // private void Awake()
-        // {
-        //     ImportModule();
-        // }
+        private void Awake()
+        {
+             ImportModule();
+        }
 
         public void ImportModule()
         {
@@ -74,10 +74,10 @@ namespace Grid_Generator.Modules
         {
             var result = moduleName;
             // 计算等效旋转次数（4次一循环）
-            time = (time % 4 + 4) % 4; // 处理负旋转
+            // time = (time % 4 + 4) % 4; // 处理负旋转
             for (var i = 0; i < time; i++)
             {
-                result = result[3] + result[..3] + result[7] + result.Substring(4, 3);
+                result = result[3] + result.Substring(0, 3) + result[7] + result.Substring(4, 3);
             }
 
             return result;
@@ -101,9 +101,14 @@ namespace Grid_Generator.Modules
         /// <returns></returns>
         private bool RotateEqualCheck(string moduleName)
         {
-            return moduleName.Length >= 8
-                   && moduleName.Take(4).All(c => c == moduleName[0]) // 检查前四位相同
-                   && moduleName.Skip(4).Take(4).All(c => c == moduleName[4]); // 检查后四位相同
+            return moduleName[0] == moduleName[1] &&
+                   moduleName[1] == moduleName[2] &&
+                   moduleName[2] == moduleName[3] &&
+                   moduleName[3] == moduleName[1] &&
+                   moduleName[4] == moduleName[5] &&
+                   moduleName[5] == moduleName[6] &&
+                   moduleName[6] == moduleName[7] &&
+                   moduleName[7] == moduleName[4];
         }
 
         private bool RotateTwiceEqualCheck(string moduleName)
@@ -130,9 +135,13 @@ namespace Grid_Generator.Modules
             return moduleName == symmetryHorizontal || moduleName == symmetryVertical || moduleName == symmetry02 || moduleName == symmetry13;
         }
 
-        public List<Module> GetModules(string moduleName)
+        public List<Module> GetModules(string _name)
         {
-            return moduleLibrary.TryGetValue(moduleName, out var result) ? result : null;
+            moduleLibrary.TryGetValue(_name, out var result);
+            if (result != null) return result;
+            Debug.Log(_name);
+            throw new Exception("ModuleLibrary::GetModule -> _name can't match");
         }
+
     }
 }
