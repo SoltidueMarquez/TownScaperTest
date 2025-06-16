@@ -82,41 +82,56 @@ namespace Grid_Generator
                 }
             }
         }
-        
+
+        public void ToggleSlot(VertexY vertexY)
+        {
+            vertexY.isActive = !vertexY.isActive;
+            foreach (var subQuadCube in vertexY.subQuadCubes)
+            {
+                subQuadCube.UpdateBit();
+                UpdateSlot(subQuadCube);
+            }
+        }
+
+        public Grid GetGrid()
+        {
+            return grid;
+        }
+
         // 调试测试
         private void OnDrawGizmos()
         {
-            if (grid == null) return;
-            foreach (var vertexY in grid.vertices.SelectMany(vertex => vertex.vertexYs))
-            {
-                Gizmos.color = (vertexY.isActive) ? Color.red : Color.gray;
-                Gizmos.DrawSphere(vertexY.worldPosition, (vertexY.isActive) ? 0.3f : 0.1f);
-            }
-
-            foreach (var subQuad in grid.subQuads)
-            {
-                foreach (var subQuadCube in subQuad.subQuadCubes)
-                {
-                    Gizmos.color = Color.gray;
-                    Gizmos.DrawLine(subQuadCube.vertexYs[0].worldPosition, subQuadCube.vertexYs[1].worldPosition);
-                    Gizmos.DrawLine(subQuadCube.vertexYs[1].worldPosition, subQuadCube.vertexYs[2].worldPosition);
-                    Gizmos.DrawLine(subQuadCube.vertexYs[2].worldPosition, subQuadCube.vertexYs[3].worldPosition);
-                    Gizmos.DrawLine(subQuadCube.vertexYs[3].worldPosition, subQuadCube.vertexYs[0].worldPosition);
-                    
-                    Gizmos.DrawLine(subQuadCube.vertexYs[4].worldPosition, subQuadCube.vertexYs[5].worldPosition);
-                    Gizmos.DrawLine(subQuadCube.vertexYs[5].worldPosition, subQuadCube.vertexYs[6].worldPosition);
-                    Gizmos.DrawLine(subQuadCube.vertexYs[6].worldPosition, subQuadCube.vertexYs[7].worldPosition);
-                    Gizmos.DrawLine(subQuadCube.vertexYs[7].worldPosition, subQuadCube.vertexYs[4].worldPosition);
-                    
-                    Gizmos.DrawLine(subQuadCube.vertexYs[0].worldPosition, subQuadCube.vertexYs[4].worldPosition);
-                    Gizmos.DrawLine(subQuadCube.vertexYs[1].worldPosition, subQuadCube.vertexYs[5].worldPosition);
-                    Gizmos.DrawLine(subQuadCube.vertexYs[2].worldPosition, subQuadCube.vertexYs[6].worldPosition);
-                    Gizmos.DrawLine(subQuadCube.vertexYs[3].worldPosition, subQuadCube.vertexYs[7].worldPosition);
-                    
-                    GUI.color = Color.blue;
-                    Handles.Label(subQuadCube.centerPosition, subQuadCube.bit);
-                }
-            }
+            // if (grid == null) return;
+            // foreach (var vertexY in grid.vertices.SelectMany(vertex => vertex.vertexYs))
+            // {
+            //     Gizmos.color = (vertexY.isActive) ? Color.red : Color.gray;
+            //     Gizmos.DrawSphere(vertexY.worldPosition, (vertexY.isActive) ? 0.3f : 0.1f);
+            // }
+            //
+            // foreach (var subQuad in grid.subQuads)
+            // {
+            //     foreach (var subQuadCube in subQuad.subQuadCubes)
+            //     {
+            //         Gizmos.color = Color.gray;
+            //         Gizmos.DrawLine(subQuadCube.vertexYs[0].worldPosition, subQuadCube.vertexYs[1].worldPosition);
+            //         Gizmos.DrawLine(subQuadCube.vertexYs[1].worldPosition, subQuadCube.vertexYs[2].worldPosition);
+            //         Gizmos.DrawLine(subQuadCube.vertexYs[2].worldPosition, subQuadCube.vertexYs[3].worldPosition);
+            //         Gizmos.DrawLine(subQuadCube.vertexYs[3].worldPosition, subQuadCube.vertexYs[0].worldPosition);
+            //         
+            //         Gizmos.DrawLine(subQuadCube.vertexYs[4].worldPosition, subQuadCube.vertexYs[5].worldPosition);
+            //         Gizmos.DrawLine(subQuadCube.vertexYs[5].worldPosition, subQuadCube.vertexYs[6].worldPosition);
+            //         Gizmos.DrawLine(subQuadCube.vertexYs[6].worldPosition, subQuadCube.vertexYs[7].worldPosition);
+            //         Gizmos.DrawLine(subQuadCube.vertexYs[7].worldPosition, subQuadCube.vertexYs[4].worldPosition);
+            //         
+            //         Gizmos.DrawLine(subQuadCube.vertexYs[0].worldPosition, subQuadCube.vertexYs[4].worldPosition);
+            //         Gizmos.DrawLine(subQuadCube.vertexYs[1].worldPosition, subQuadCube.vertexYs[5].worldPosition);
+            //         Gizmos.DrawLine(subQuadCube.vertexYs[2].worldPosition, subQuadCube.vertexYs[6].worldPosition);
+            //         Gizmos.DrawLine(subQuadCube.vertexYs[3].worldPosition, subQuadCube.vertexYs[7].worldPosition);
+            //         
+            //         GUI.color = Color.blue;
+            //         Handles.Label(subQuadCube.centerPosition, subQuadCube.bit);
+            //     }
+            // }
         }
 
         #region 动态可视化网格平滑的过程

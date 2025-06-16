@@ -93,6 +93,11 @@ namespace Grid_Generator
             vertexYs[5] = subQuad.b.vertexYs[y];
             vertexYs[6] = subQuad.c.vertexYs[y];
             vertexYs[7] = subQuad.d.vertexYs[y];
+
+            foreach (var vertexY in vertexYs)
+            {
+                vertexY.subQuadCubes.Add(this);
+            }
         }
         
         /// <summary>

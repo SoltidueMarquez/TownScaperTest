@@ -248,6 +248,8 @@ namespace Grid_Generator
         public readonly Vector3 worldPosition;
         public bool isActive;
 
+        public List<SubQuadCube> subQuadCubes = new List<SubQuadCube>();
+
         public VertexY(Vertex vertex, int y)
         {
             this.vertex = vertex;
