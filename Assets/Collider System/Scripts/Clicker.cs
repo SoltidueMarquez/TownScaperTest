@@ -79,10 +79,10 @@ namespace Collider_System
                     else
                         vertexYTarget = subQuad.c.vertexYs[1];
 
-                    // if (vertexYTarget.vertex.isBoundary)
-                    // {
-                    //     vertexYTarget = null;
-                    // }
+                    if (vertexYTarget.vertex.isBoundary)
+                    {
+                        vertexYTarget = null;
+                    }
                 }
             }
         }

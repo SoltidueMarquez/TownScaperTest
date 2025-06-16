@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -10,23 +11,41 @@ namespace Grid_Generator
         /// 每个点在世界中的实际初始位置，为后续网格平滑做准备
         /// </summary>
         public Vector3 InitialPosition;
+
         /// <summary>
         /// 当前坐标
         /// </summary>
         public Vector3 currentPosition;
+
         /// <summary>
         /// 网格平滑偏移值
         /// </summary>
         public Vector3 offset = Vector3.zero;
+
         /// <summary>
         /// y坐标列表
         /// </summary>
         public List<VertexY> vertexYs = new List<VertexY>();
 
+        public bool isBoundary;
+
         /// <summary>
         /// 松弛函数，根据偏移值与初始坐标计算当前坐标
         /// </summary>
-        public void Relax() { currentPosition = InitialPosition + offset; }
+        public void Relax()
+        {
+            currentPosition = InitialPosition + offset;
+        }
+
+        public void BoundaryCheck()
+        {
+            // 判断是否为边缘Hex
+            bool isBoundaryHex = this is VertexHex && ((VertexHex)this).coord.radius == Grid.radius;
+            // 判断是否为边缘Mid
+            bool isBoundaryMid = this is VertexMid && ((VertexMid)this).edge.hexes.ToArray()[0].coord.radius == Grid.radius
+                                                   && ((VertexMid)this).edge.hexes.ToArray()[1].coord.radius == Grid.radius;
+            isBoundary = isBoundaryHex || isBoundaryMid;
+        }
     }
 
     /// <summary>
@@ -37,6 +56,7 @@ namespace Grid_Generator
         public readonly int q;
         public readonly int r;
         public readonly int s;
+        public readonly int radius;
         public readonly Vector3 worldPosition; // 世界坐标系下的真实坐标
 
         public Coord(int q, int r, int s)
@@ -44,6 +64,7 @@ namespace Grid_Generator
             this.q = q;
             this.r = r;
             this.s = s;
+            this.radius = Mathf.Max(Mathf.Abs(q), Mathf.Abs(r), Mathf.Abs(s));
             worldPosition = WorldPosition();
         }
 
@@ -196,8 +217,10 @@ namespace Grid_Generator
     /// </summary>
     public class VertexMid : Vertex
     {
+        public readonly Edge edge;
         public VertexMid(Edge edge, ICollection<VertexMid> middles)
         {
+            this.edge = edge;
             var a = edge.hexes.ToArray()[0];
             var b = edge.hexes.ToArray()[1];
             middles.Add(this);
@@ -220,7 +243,8 @@ namespace Grid_Generator
     {
         public VertexTriangleCenter(Triangle triangle)
         {
-            InitialPosition = (triangle.a.InitialPosition + triangle.b.InitialPosition + triangle.c.InitialPosition) / 3;
+            InitialPosition = (triangle.a.InitialPosition + triangle.b.InitialPosition + triangle.c.InitialPosition) /
+                              3;
             currentPosition = InitialPosition;
         }
     }
@@ -246,6 +270,7 @@ namespace Grid_Generator
         public readonly Vertex vertex;
         public readonly int y;
         public readonly Vector3 worldPosition;
+        public readonly bool isBoundary;
         public bool isActive;
 
         public List<SubQuadCube> subQuadCubes = new List<SubQuadCube>();
@@ -254,6 +279,7 @@ namespace Grid_Generator
         {
             this.vertex = vertex;
             this.y = y;
+            isBoundary = vertex.isBoundary || Math.Abs(y - Grid.height) < 0.01f || y == 0;
             worldPosition = vertex.currentPosition + Vector3.up * (y * Grid.cellHeight);
         }
     }

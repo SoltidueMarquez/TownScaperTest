@@ -15,7 +15,7 @@ namespace Grid_Generator
 
         [SerializeField, Tooltip("")] private ModuleLibrary moduleLibrary;
         [SerializeField, Tooltip("")] private Material moduleMaterial;
-        
+
         [SerializeField, Tooltip("测试小球")] private Transform addSphere;
         [SerializeField, Tooltip("测试小球")] private Transform deleteSphere;
         private Grid grid; // 网格
@@ -33,7 +33,7 @@ namespace Grid_Generator
             {
                 vertexY.isActive = vertexY.isActive switch
                 {
-                    false when Vector3.Distance(vertexY.worldPosition, addSphere.position) < 1.5f => true,
+                    false when (Vector3.Distance(vertexY.worldPosition, addSphere.position) < 1.5f) && (!vertexY.isBoundary) => true,
                     true when Vector3.Distance(vertexY.worldPosition, deleteSphere.position) < 1.5f => false,
                     _ => vertexY.isActive
                 };
@@ -52,9 +52,9 @@ namespace Grid_Generator
         private void UpdateSlot(SubQuadCube subQuadCube)
         {
             var slotName = $"Slot_{grid.subQuads.IndexOf(subQuadCube.subQuad)}_{subQuadCube.y}";
-            
+
             var slotGameObject = transform.Find(slotName) ? transform.Find(slotName).gameObject : null;
-            
+
             if (slotGameObject == null) // 如果没找到slot，当bit值变化就创建新的slot
             {
                 if (subQuadCube.bit != "00000000" && subQuadCube.bit != "11111111")
