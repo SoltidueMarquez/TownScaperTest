@@ -31,6 +31,7 @@ namespace Collider_System
                 var groundQuadColliderQuad = new GameObject(
                     "QuadCollider_" + grid.subQuads.IndexOf(subQuad), typeof(MeshCollider), typeof(GroundColliderQuad));
                 groundQuadColliderQuad.transform.SetParent(transform);
+                groundQuadColliderQuad.transform.localPosition = Vector3.up * (Grid.cellHeight * 0.5f);
                 groundQuadColliderQuad.GetComponent<MeshCollider>().sharedMesh = mesh;
                 groundQuadColliderQuad.GetComponent<GroundColliderQuad>().subQuad = subQuad;
                 groundQuadColliderQuad.layer = LayerMask.NameToLayer("GroundCollider");

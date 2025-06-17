@@ -1,12 +1,12 @@
-﻿using System;
-using DefaultNamespace;
+﻿using DefaultNamespace;
 using Grid_Generator;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 namespace Collider_System
 {
+    public enum RaycastHitType { ground,none }
+
     public class Clicker : MonoBehaviour
     {
         private GridGenerator m_GridGenerator;
@@ -14,11 +14,15 @@ namespace Collider_System
         private PlayerInputActions m_InputActions;
 
         private RaycastHit m_RaycastHit;
+        private RaycastHitType m_RaycastHitType;
+        
         [SerializeField] private float raycastRange;
         [SerializeField] private LayerMask clickerLayerMask;
-
+        [SerializeField] private Cursor cursor;
         private VertexY vertexYSelected;
+        private VertexY vertexYPreSelected;
         private VertexY vertexYTarget;
+        private VertexY vertexYPreTarget;
 
         private void Awake()
         {
@@ -35,10 +39,13 @@ namespace Collider_System
         private void Update()
         {
             FindTarget();
+            UpdateCursor();
         }
 
         private void FindTarget()
         {
+            vertexYPreSelected = vertexYSelected;
+            vertexYPreTarget = vertexYTarget;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out m_RaycastHit, raycastRange, clickerLayerMask))
             {
@@ -82,20 +89,39 @@ namespace Collider_System
                     if (vertexYTarget.vertex.isBoundary)
                     {
                         vertexYTarget = null;
+                        m_RaycastHitType = RaycastHitType.none;
+                    }
+                    else
+                    {
+                        m_RaycastHitType = RaycastHitType.ground;
                     }
                 }
+            }
+            else
+            {
+                vertexYTarget = null;
+                vertexYSelected = null;
+                m_RaycastHitType = RaycastHitType.none;
+            }
+        }
+
+        private void UpdateCursor()
+        {
+            if (vertexYPreTarget != vertexYTarget || vertexYPreSelected != vertexYSelected)
+            {
+                cursor.UpdateCursor(m_RaycastHit, m_RaycastHitType, vertexYSelected, vertexYTarget);
             }
         }
 
         private void Add(InputAction.CallbackContext ctx)
         {
-            if(vertexYTarget is { isActive: false })
+            if (vertexYTarget is { isActive: false })
                 m_GridGenerator.ToggleSlot(vertexYTarget);
         }
 
         private void Delete(InputAction.CallbackContext ctx)
         {
-            if(vertexYSelected is { isActive: false })
+            if (vertexYSelected is { isActive: false })
                 m_GridGenerator.ToggleSlot(vertexYSelected);
         }
 

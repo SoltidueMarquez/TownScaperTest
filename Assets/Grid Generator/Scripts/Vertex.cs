@@ -23,6 +23,11 @@ namespace Grid_Generator
         public Vector3 offset = Vector3.zero;
 
         /// <summary>
+        /// 细分四边形
+        /// </summary>
+        public List<SubQuad> subQuads = new List<SubQuad>();
+
+        /// <summary>
         /// y坐标列表
         /// </summary>
         public List<VertexY> vertexYs = new List<VertexY>();
@@ -42,9 +47,75 @@ namespace Grid_Generator
             // 判断是否为边缘Hex
             bool isBoundaryHex = this is VertexHex && ((VertexHex)this).coord.radius == Grid.radius;
             // 判断是否为边缘Mid
-            bool isBoundaryMid = this is VertexMid && ((VertexMid)this).edge.hexes.ToArray()[0].coord.radius == Grid.radius
-                                                   && ((VertexMid)this).edge.hexes.ToArray()[1].coord.radius == Grid.radius;
+            bool isBoundaryMid =
+                this is VertexMid && ((VertexMid)this).edge.hexes.ToArray()[0].coord.radius == Grid.radius
+                                  && ((VertexMid)this).edge.hexes.ToArray()[1].coord.radius == Grid.radius;
             isBoundary = isBoundaryHex || isBoundaryMid;
+        }
+
+        /// <summary>
+        /// 创建cursor的mesh
+        /// </summary>
+        /// <returns></returns>
+        public Mesh CreateMesh()
+        {
+            List<Vector3> meshVertices = new List<Vector3>();
+            List<int> meshTriangles = new List<int>();
+
+            foreach (var subQuad in subQuads)
+            {
+                if (this is VertexCenter)
+                {
+                    meshVertices.Add(currentPosition);
+                    meshVertices.Add(subQuad.GetMid_cd());
+                    meshVertices.Add(subQuad.GetCenterPosition());
+                    meshVertices.Add(subQuad.GetMid_bc());
+                }
+                else if (this is VertexMid)
+                {
+                    if (subQuad.b == this)
+                    {
+                        meshVertices.Add(currentPosition);
+                        meshVertices.Add(subQuad.GetMid_bc());
+                        meshVertices.Add(subQuad.GetCenterPosition());
+                        meshVertices.Add(subQuad.GetMid_ab());
+                    }
+                    else
+                    {
+                        meshVertices.Add(currentPosition);
+                        meshVertices.Add(subQuad.GetMid_ad());
+                        meshVertices.Add(subQuad.GetCenterPosition());
+                        meshVertices.Add(subQuad.GetMid_cd());
+                    }
+                }
+                else
+                {
+                    meshVertices.Add(currentPosition);
+                    meshVertices.Add(subQuad.GetMid_ab());
+                    meshVertices.Add(subQuad.GetCenterPosition());
+                    meshVertices.Add(subQuad.GetMid_ad());
+                }
+            }
+
+            for (int i = 0; i < meshVertices.Count; i++)
+            { meshVertices[i] -= currentPosition; }
+
+            for (int i = 0; i < subQuads.Count; i++)
+            {
+                meshTriangles.Add(i * 4);
+                meshTriangles.Add(i * 4 + 1);
+                meshTriangles.Add(i * 4 + 2);
+                meshTriangles.Add(i * 4);
+                meshTriangles.Add(i * 4 + 2);
+                meshTriangles.Add(i * 4 + 3);
+            }
+
+            Mesh mesh = new Mesh
+            {
+                vertices = meshVertices.ToArray(),
+                triangles = meshTriangles.ToArray()
+            };
+            return mesh;
         }
     }
 
@@ -218,6 +289,7 @@ namespace Grid_Generator
     public class VertexMid : Vertex
     {
         public readonly Edge edge;
+
         public VertexMid(Edge edge, ICollection<VertexMid> middles)
         {
             this.edge = edge;

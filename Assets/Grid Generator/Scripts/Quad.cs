@@ -57,6 +57,24 @@ namespace Grid_Generator
             var quadB = new SubQuad(b, bc.mid, center, ab.mid, subQuads);
             var quadC = new SubQuad(c, cd.mid, center, bc.mid, subQuads);
             var quadD = new SubQuad(d, ad.mid, center, cd.mid, subQuads);
+            
+            a.subQuads.Add(quadA);
+            b.subQuads.Add(quadB);
+            c.subQuads.Add(quadC);
+            d.subQuads.Add(quadD);
+            center.subQuads.Add(quadA);
+            center.subQuads.Add(quadB);
+            center.subQuads.Add(quadC);
+            center.subQuads.Add(quadD);
+            ab.mid.subQuads.Add(quadA);
+            ab.mid.subQuads.Add(quadB);
+            bc.mid.subQuads.Add(quadB);
+            bc.mid.subQuads.Add(quadC);
+            cd.mid.subQuads.Add(quadC);
+            cd.mid.subQuads.Add(quadD);
+            ad.mid.subQuads.Add(quadD);
+            ad.mid.subQuads.Add(quadA);
+            
         }
     }
 }
