@@ -72,6 +72,7 @@ namespace Grid_Generator
             // 创建三维网格
             foreach (var vertex in vertices)
             {
+                vertex.index = vertices.IndexOf(vertex);
                 vertex.BoundaryCheck();
                 for (var i = 0; i < Grid.height + 1; i++)
                 {

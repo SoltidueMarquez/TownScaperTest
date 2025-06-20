@@ -33,6 +33,7 @@ namespace Grid_Generator
         public List<VertexY> vertexYs = new List<VertexY>();
 
         public bool isBoundary;
+        public int index;
 
         /// <summary>
         /// 松弛函数，根据偏移值与初始坐标计算当前坐标
@@ -98,7 +99,9 @@ namespace Grid_Generator
             }
 
             for (int i = 0; i < meshVertices.Count; i++)
-            { meshVertices[i] -= currentPosition; }
+            {
+                meshVertices[i] -= currentPosition;
+            }
 
             for (int i = 0; i < subQuads.Count; i++)
             {
@@ -281,6 +284,54 @@ namespace Grid_Generator
         {
             return radius == 0 ? vertices.GetRange(0, 1) : vertices.GetRange(radius * (radius - 1) * 3 + 1, radius * 6);
         }
+        
+        public List<Mesh> CreateSideMesh()
+        {
+            int n = this.subQuads.Count;
+            List<Mesh> meshes = new List<Mesh>();
+            for (int i = 0; i < n; i++)
+            {
+                List<Vector3> meshVertices = new List<Vector3>();
+                List<int> meshTriangles = new List<int>();
+
+                meshVertices.Add(subQuads[i].GetCenterPosition() + Vector3.up * Grid.cellHeight / 2);
+                meshVertices.Add(subQuads[i].GetCenterPosition() + Vector3.down * Grid.cellHeight / 2);
+                meshVertices.Add(subQuads[i].GetMid_ab() + Vector3.up * Grid.cellHeight / 2);
+                meshVertices.Add(subQuads[i].GetMid_ab() + Vector3.down * Grid.cellHeight / 2);
+                foreach (var subQuad in subQuads.Where(subQuad => subQuad.d == subQuads[i].b))
+                {
+                    meshVertices.Add(subQuad.GetCenterPosition()+Vector3.up *Grid.cellHeight / 2);
+                    meshVertices.Add(subQuad.GetCenterPosition() + Vector3.down * Grid.cellHeight / 2);
+                    break;
+                }
+            
+
+                for (int j = 0; j < meshVertices.Count; j++)
+                { meshVertices[j] -= currentPosition; }
+
+                meshTriangles.Add(0);
+                meshTriangles.Add(2);
+                meshTriangles.Add(1);
+                meshTriangles.Add(2);
+                meshTriangles.Add(3);
+                meshTriangles.Add(1);
+                meshTriangles.Add(2);
+                meshTriangles.Add(4);
+                meshTriangles.Add(5);
+                meshTriangles.Add(2);
+                meshTriangles.Add(5);
+                meshTriangles.Add(3);
+
+                Mesh mesh = new Mesh
+                {
+                    vertices = meshVertices.ToArray(),
+                    triangles = meshTriangles.ToArray()
+                };
+                meshes.Add(mesh);
+            }
+
+            return meshes;
+        }
     }
 
     /// <summary>
@@ -299,6 +350,66 @@ namespace Grid_Generator
             InitialPosition = (a.InitialPosition + b.InitialPosition) / 2;
             currentPosition = InitialPosition;
         }
+        
+        public List<Mesh> CreateSideMesh()
+        {
+            List<Mesh> meshes = new List<Mesh>();
+            for (int i = 0; i < 4; i++)
+            {
+                List<Vector3> meshVertices = new List<Vector3>();
+                List<int> meshTriangles = new List<int>();
+
+                meshVertices.Add(subQuads[i].GetCenterPosition() + Vector3.up * Grid.cellHeight / 2);
+                meshVertices.Add(subQuads[i].GetCenterPosition() + Vector3.down * Grid.cellHeight / 2);
+                if (subQuads[i].b == this)
+                {
+                    meshVertices.Add(subQuads[i].GetMid_bc() + Vector3.up * Grid.cellHeight / 2);
+                    meshVertices.Add(subQuads[i].GetMid_bc() + Vector3.down * Grid.cellHeight / 2);
+                    foreach (var subQuad in subQuads.Where(subQuad => subQuad.c == subQuads[i].c && subQuad != subQuads[i]))
+                    {
+                        meshVertices.Add(subQuad.GetCenterPosition() + Vector3.up * Grid.cellHeight / 2);
+                        meshVertices.Add(subQuad.GetCenterPosition() + Vector3.down * Grid.cellHeight / 2);
+                        break;
+                    }
+                }
+                else
+                {
+                    meshVertices.Add(subQuads[i].GetMid_ad() + Vector3.up * Grid.cellHeight / 2);
+                    meshVertices.Add(subQuads[i].GetMid_ad() + Vector3.down * Grid.cellHeight / 2);
+                    foreach (var subQuad in subQuads.Where(subQuad => subQuad.a == subQuads[i].a && subQuad != subQuads[i]))
+                    {
+                        meshVertices.Add(subQuad.GetCenterPosition() + Vector3.up * Grid.cellHeight / 2);
+                        meshVertices.Add(subQuad.GetCenterPosition() + Vector3.down * Grid.cellHeight / 2);
+                        break;
+                    }
+                }
+
+                for (int j = 0; j < meshVertices.Count; j++)
+                { meshVertices[j] -= currentPosition; }
+
+                meshTriangles.Add(0);
+                meshTriangles.Add(2);
+                meshTriangles.Add(1);
+                meshTriangles.Add(2);
+                meshTriangles.Add(3);
+                meshTriangles.Add(1);
+                meshTriangles.Add(2);
+                meshTriangles.Add(4);
+                meshTriangles.Add(5);
+                meshTriangles.Add(2);
+                meshTriangles.Add(5);
+                meshTriangles.Add(3);
+
+                Mesh mesh = new Mesh
+                {
+                    vertices = meshVertices.ToArray(),
+                    triangles = meshTriangles.ToArray()
+                };
+                meshes.Add(mesh);
+            }
+
+            return meshes;
+        }
     }
 
     /// <summary>
@@ -306,6 +417,48 @@ namespace Grid_Generator
     /// </summary>
     public class VertexCenter : Vertex
     {
+        public List<Mesh> CreateSideMesh()
+        {
+            int n = this.subQuads.Count;
+            List<Mesh> meshes = new List<Mesh>();
+            for (int i = 0; i < n; i++)
+            {
+                List<Vector3> meshVertices = new List<Vector3>();
+                List<int> meshTriangles = new List<int>();
+
+                meshVertices.Add(subQuads[i].GetCenterPosition() + Vector3.up * Grid.cellHeight / 2);
+                meshVertices.Add(subQuads[i].GetMid_cd() + Vector3.up * Grid.cellHeight / 2);
+                meshVertices.Add(subQuads[(i + n - 1) % n].GetCenterPosition() + Vector3.up * Grid.cellHeight / 2);
+                meshVertices.Add(subQuads[i].GetCenterPosition() + Vector3.down * Grid.cellHeight / 2);
+                meshVertices.Add(subQuads[i].GetMid_cd() + Vector3.down * Grid.cellHeight / 2);
+                meshVertices.Add(subQuads[(i + n - 1) % n].GetCenterPosition() + Vector3.down * Grid.cellHeight / 2);
+
+                for (int j = 0; j < meshVertices.Count; j++)
+                { meshVertices[j] -= currentPosition; }
+
+                meshTriangles.Add(0);
+                meshTriangles.Add(1);
+                meshTriangles.Add(3);
+                meshTriangles.Add(1);
+                meshTriangles.Add(4);
+                meshTriangles.Add(3);
+                meshTriangles.Add(1);
+                meshTriangles.Add(2);
+                meshTriangles.Add(5);
+                meshTriangles.Add(1);
+                meshTriangles.Add(5);
+                meshTriangles.Add(4);
+
+                Mesh mesh = new Mesh
+                {
+                    vertices = meshVertices.ToArray(),
+                    triangles = meshTriangles.ToArray()
+                };
+                meshes.Add(mesh);
+            }
+
+            return meshes;
+        }
     }
 
     /// <summary>
@@ -341,6 +494,7 @@ namespace Grid_Generator
     {
         public readonly Vertex vertex;
         public readonly int y;
+        public readonly string name;
         public readonly Vector3 worldPosition;
         public readonly bool isBoundary;
         public bool isActive;
@@ -351,6 +505,7 @@ namespace Grid_Generator
         {
             this.vertex = vertex;
             this.y = y;
+            this.name = $"Vertex_{vertex.index}_{y}";
             isBoundary = vertex.isBoundary || Math.Abs(y - Grid.height) < 0.01f || y == 0;
             worldPosition = vertex.currentPosition + Vector3.up * (y * Grid.cellHeight);
         }

@@ -2,15 +2,17 @@
 using Grid_Generator;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Grid = Grid_Generator.Grid;
 
 namespace Collider_System
 {
-    public enum RaycastHitType { ground,none }
+    public enum RaycastHitType { ground, top, bottom, side, none }
 
     public class Clicker : MonoBehaviour
     {
         private GridGenerator m_GridGenerator;
         private ColliderSystem m_ColliderSystem;
+        private SlotColliderSystem m_SlotColliderSystem;
         private PlayerInputActions m_InputActions;
 
         private RaycastHit m_RaycastHit;
@@ -29,6 +31,7 @@ namespace Collider_System
             var wordMaster = GetComponentInParent<WorldMaster>();
             m_GridGenerator = wordMaster.gridGenerator;
             m_ColliderSystem = wordMaster.colliderSystem;
+            m_SlotColliderSystem = m_ColliderSystem.slotColliderSystem;
 
             m_InputActions = new PlayerInputActions();
             m_InputActions.Build.Enable();
@@ -96,6 +99,50 @@ namespace Collider_System
                         m_RaycastHitType = RaycastHitType.ground;
                     }
                 }
+                else // 射线检测到slot碰撞体
+                {
+                    vertexYSelected = m_RaycastHit.transform.parent.GetComponent<SlotCollider>().vertexY;
+                    int y = vertexYSelected.y;
+                    if (m_RaycastHit.transform.GetComponent<SlotColliderTop>())
+                    {
+                        if (y < Grid.height - 1)
+                        {
+                            vertexYTarget = vertexYSelected.vertex.vertexYs[y + 1];
+                            m_RaycastHitType = RaycastHitType.top;
+                        }
+                        else
+                        {
+                            vertexYTarget = null;
+                            m_RaycastHitType = RaycastHitType.none;
+                        }
+                    }
+                    else if (m_RaycastHit.transform.GetComponent<SlotColliderBottom>())
+                    {
+                        if (y > 1)
+                        {
+                            vertexYTarget = vertexYSelected.vertex.vertexYs[y - 1];
+                            m_RaycastHitType = RaycastHitType.bottom;
+                        }
+                        else
+                        {
+                            vertexYTarget = null;
+                            m_RaycastHitType = RaycastHitType.none;
+                        }
+                    }
+                    else
+                    {
+                        vertexYTarget = m_RaycastHit.transform.GetComponent<SlotColliderSide>().neighbor;
+                        if (vertexYTarget.vertex.isBoundary)
+                        {
+                            vertexYTarget = null;
+                            m_RaycastHitType = RaycastHitType.none;
+                        }
+                        else
+                        {
+                            m_RaycastHitType = RaycastHitType.side;
+                        }
+                    }
+                }
             }
             else
             {
@@ -116,13 +163,20 @@ namespace Collider_System
         private void Add(InputAction.CallbackContext ctx)
         {
             if (vertexYTarget is { isActive: false })
+            {
                 m_GridGenerator.ToggleSlot(vertexYTarget);
+                m_SlotColliderSystem.CreateCollider(vertexYTarget);
+            }
         }
 
         private void Delete(InputAction.CallbackContext ctx)
         {
-            if (vertexYSelected is { isActive: false })
+            if (vertexYSelected is { isActive: true })
+            {
                 m_GridGenerator.ToggleSlot(vertexYSelected);
+                m_SlotColliderSystem.DestroyCollider(vertexYSelected);
+            }
+            
         }
 
         private void OnDrawGizmos()

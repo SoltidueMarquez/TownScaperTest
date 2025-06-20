@@ -10,6 +10,8 @@ namespace Collider_System
 
         [SerializeField] private GroundCollider groundCollider;
 
+        [field: SerializeField] public SlotColliderSystem slotColliderSystem { get; private set; }
+
         private void Awake()
         {
             worldMaster = GetComponentInParent<WorldMaster>();
