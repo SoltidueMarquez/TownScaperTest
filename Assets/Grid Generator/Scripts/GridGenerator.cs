@@ -16,8 +16,8 @@ namespace Grid_Generator
         [SerializeField, Tooltip("")] private ModuleLibrary moduleLibrary;
         [SerializeField, Tooltip("")] private Material moduleMaterial;
 
-        [SerializeField, Tooltip("测试小球")] private Transform addSphere;
-        [SerializeField, Tooltip("测试小球")] private Transform deleteSphere;
+        // [SerializeField, Tooltip("测试小球")] private Transform addSphere;
+        // [SerializeField, Tooltip("测试小球")] private Transform deleteSphere;
         private Grid grid; // 网格
 
         private void Awake()
@@ -29,24 +29,24 @@ namespace Grid_Generator
         private void Update()
         {
             // 测试用，性能消耗很恐怖
-            foreach (var vertexY in grid.vertices.SelectMany(vertex => vertex.vertexYs))
-            {
-                vertexY.isActive = vertexY.isActive switch
-                {
-                    false when (Vector3.Distance(vertexY.worldPosition, addSphere.position) < 1.5f) && (!vertexY.isBoundary) => true,
-                    true when Vector3.Distance(vertexY.worldPosition, deleteSphere.position) < 1.5f => false,
-                    _ => vertexY.isActive
-                };
-            }
+            // foreach (var vertexY in grid.vertices.SelectMany(vertex => vertex.vertexYs))
+            // {
+            //     vertexY.isActive = vertexY.isActive switch
+            //     {
+            //         false when (Vector3.Distance(vertexY.worldPosition, addSphere.position) < 1.5f) && (!vertexY.isBoundary) => true,
+            //         true when Vector3.Distance(vertexY.worldPosition, deleteSphere.position) < 1.5f => false,
+            //         _ => vertexY.isActive
+            //     };
+            // }
 
-            foreach (var subQuadCube in grid.subQuads.SelectMany(subQuad => subQuad.subQuadCubes))
-            {
-                subQuadCube.UpdateBit();
-                if (subQuadCube.preBit != subQuadCube.bit)
-                {
-                    UpdateSlot(subQuadCube);
-                }
-            }
+            // foreach (var subQuadCube in grid.subQuads.SelectMany(subQuad => subQuad.subQuadCubes))
+            // {
+            //     subQuadCube.UpdateBit();
+            //     if (subQuadCube.preBit != subQuadCube.bit)
+            //     {
+            //         UpdateSlot(subQuadCube);
+            //     }
+            // }
         }
 
         private void UpdateSlot(SubQuadCube subQuadCube)
