@@ -261,8 +261,6 @@ MonoBehaviour:
   relaxTimes: 120
   moduleLibrary: {fileID: 11400000, guid: e70cbb24b9ead2b40b14f2ed5fed6e21, type: 2}
   moduleMaterial: {fileID: 2100000, guid: 6936f5502618b7847b501b77a679a300, type: 2}
-  addSphere: {fileID: 0}
-  deleteSphere: {fileID: 0}
 --- !u!1 &403475037
 GameObject:
   m_ObjectHideFlags: 0
@@ -594,7 +592,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 083cfaa73d98ca44484cb3ea53bc8c15, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
